@@ -9,3 +9,84 @@ const videoSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("Video", videoSchema);
+const express = require("express");
+const path = require("path");
+const Video = require("../models/Video");
+
+const router = express.Router();
+
+// Prepopulate videos in the database (for demo purposes)
+const videoList = [
+  {
+    title: "Mark Normand: Don’t Be Yourself",
+    description: "Mark Normand dives deep into the neuroses of modern life.",
+    fileUrl: "/uploads/mark_normand_dont_be_yourself.mp4",
+  },
+  {
+    title: "Dave Chappelle: Sticks & Stones",
+    description: "Dave Chappelle delivers his signature sharp wit on various topics.",
+    fileUrl: "/uploads/dave_chappelle_sticks_and_stones.mp4",
+  },
+  {
+    title: "Ali Wong: Baby Cobra",
+    description: "Ali Wong explores modern womanhood in a hilarious stand-up show.",
+    fileUrl: "/uploads/ali_wong_baby_cobra.mp4",
+  },
+];
+
+// Endpoint to fetch all videos
+router.get("/", async (req, res) => {
+  const videos = await Video.find();
+  res.json(videos);
+});
+
+// Endpoint to stream video
+router.get("/stream/:id", async (req, res) => {
+  const video = await Video.findById(req.params.id);
+  if (!video) return res.status(404).json({ message: "Video not found" });
+
+  const filePath = path.join(__dirname, "../uploads", video.fileUrl);
+  res.sendFile(filePath);
+});
+
+module.exports = router;
+Step 2: Frontend Setup with Actual Video Data
+Frontend Setup (React.js)
+We will use React to display the videos on the frontend.
+
+App Component (src/App.js):
+Here, we will display the list of videos fetched from the backend and allow the user to click and stream them.
+
+javascript
+Copy
+Edit
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
+function App() {
+  const [videos, setVideos] = useState([]);
+
+  useEffect(() => {
+    // Fetch videos from the backend
+    axios.get("/api/videos")
+      .then(response => setVideos(response.data))
+      .catch(err => console.error(err));
+  }, []);
+
+  return (
+    <div>
+      <h1>Stand-Up Comedy Streaming Platform</h1>
+      <div className="videos">
+        {videos.map(video => (
+          <div key={video._id} className="video-card">
+            <h3>{video.title}</h3>
+            <p>{video.description}</p>
+            <video controls width="400" src={`/api/videos/stream/${video._id}`} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default App;
