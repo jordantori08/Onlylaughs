@@ -1,11 +1,11 @@
-mport React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function App() {
   const [videos, setVideos] = useState([]);
 
   useEffect(() => {
-    // Fetch videos
+    // Fetch videos from the backend
     axios.get("/api/videos")
       .then(response => setVideos(response.data))
       .catch(err => console.error(err));
@@ -13,7 +13,7 @@ function App() {
 
   return (
     <div>
-      <h1>Video Streaming Platform</h1>
+      <h1>Stand-Up Comedy Streaming Platform</h1>
       <div className="videos">
         {videos.map(video => (
           <div key={video._id} className="video-card">
