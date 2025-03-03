@@ -1,0 +1,30 @@
+mport React, { useState, useEffect } from "react";
+import axios from "axios";
+
+function App() {
+  const [videos, setVideos] = useState([]);
+
+  useEffect(() => {
+    // Fetch videos
+    axios.get("/api/videos")
+      .then(response => setVideos(response.data))
+      .catch(err => console.error(err));
+  }, []);
+
+  return (
+    <div>
+      <h1>Video Streaming Platform</h1>
+      <div className="videos">
+        {videos.map(video => (
+          <div key={video._id} className="video-card">
+            <h3>{video.title}</h3>
+            <p>{video.description}</p>
+            <video controls width="400" src={`/api/videos/stream/${video._id}`} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default App;
